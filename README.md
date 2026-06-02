@@ -8,6 +8,7 @@ this is version 2 of https://github.com/kenjisubagja/Netflix_Checker
 
 ## Spesial thanks @cyber7tech_dz For file cookie 
 
+## This version is better because we can cancel midway and the files/cookies can be retrieved. We recommend running it until the end so you don't have to keep changing accounts if something happens to your account.
 
 Tutor Run?? 
 https://www.youtube.com/@klikajarbareng
