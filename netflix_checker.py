@@ -45,7 +45,7 @@ def save_results():
             f.write(f"     SecureNetflixId: {acc['cookies'].get('SecureNetflixId', '')[:60]}...\n")
             f.write("-" * 60 + "\n")
     
-    print(f"✅ Saved TXT: {txt_file}")
+    print(f"Saved TXT: {txt_file}")
     
     # Save JSON for Cookie-Editor import
     json_file = f'netflix_live_{ts}.json'
@@ -83,11 +83,11 @@ def save_results():
     with open(json_file, 'w', encoding='utf-8') as f:
         json.dump(json_data, f, indent=2)
     
-    print(f"✅ Saved JSON (Cookie-Editor): {json_file}")
+    print(f"Saved JSON (Cookie-Editor): {json_file}")
     
     # Also print summary
     print(f"\n{'=' * 60}")
-    print(f"🔥 LIVE: {count} | 4K: {fourk_count}")
+    print(f"LIVE: {count} | 4K: {fourk_count}")
     
     stats = Counter(res for _, _, res in live_accounts)
     for plan, num in stats.most_common():
@@ -241,7 +241,7 @@ def check_netflix_account(account_data):
         
         # Check for 4K
         if re.search(r'4K video resolution[^<]*?(?:spatial audio|ad-free)', html, re.I):
-            plan_detected = '4K 🔥'
+            plan_detected = '4K'
         else:
             plan_match = re.search(
                 r'data-uia="account-membership-page\+plan-card\+title"[^>]*>([^<]{1,30}?)<',
@@ -311,9 +311,9 @@ def main():
             count += 1
             if '4K' in res:
                 fourk_count += 1
-                print(f"🎬 {res} | {date} 🔥 #{count}")
+                print(f" {res} | {date}  #{count}")
             else:
-                print(f"✅ {res} | {date} #{count}")
+                print(f" {res} | {date} #{count}")
             live_accounts.append((acc, date, res))
         else:
             print(f"❌ dead ({res})")
@@ -321,14 +321,14 @@ def main():
         time.sleep(2)
     
     print("\n" + "=" * 80)
-    print(f"🔥 LIVE: {count} | 4K: {fourk_count}")
+    print(f" LIVE: {count} | 4K: {fourk_count}")
     
     stats = Counter(res for _, _, res in live_accounts)
     for plan, num in stats.most_common():
         print(f"  {plan}: {num}")
     
     save_results()
-    print("\n🎉 DONE!")
+    print("\n DONE!")
 
 if __name__ == "__main__":
     main()
