@@ -13,6 +13,12 @@ live_accounts = []
 count = 0
 fourk_count = 0
 
+# Buat folder result dan invalid jika belum ada
+RESULT_DIR = "result"
+INVALID_DIR = "invalid"
+os.makedirs(RESULT_DIR, exist_ok=True)
+os.makedirs(INVALID_DIR, exist_ok=True)
+
 def signal_handler(sig, frame):
     """Handle CTRL+C - save progress before exit."""
     print("\n\n[!] CTRL+C detected! Saving progress...")
@@ -21,7 +27,7 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 def save_results():
-    """Save current live accounts to files."""
+    """Save current live accounts to files (summary)."""
     global live_accounts, count, fourk_count
     
     if not live_accounts:
@@ -30,7 +36,7 @@ def save_results():
     
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     
-    # Save TXT
+    # Save TXT summary
     txt_file = f'netflix_live_{ts}.txt'
     with open(txt_file, 'w', encoding='utf-8') as f:
         f.write(f"NETFLIX CHECKER - {count} LIVE (SAVED ON INTERRUPT)\n")
@@ -47,7 +53,7 @@ def save_results():
     
     print(f"Saved TXT: {txt_file}")
     
-    # Save JSON for Cookie-Editor import
+    # Save JSON for Cookie-Editor
     json_file = f'netflix_live_{ts}.json'
     json_data = []
     for i, (acc, date, res) in enumerate(live_accounts, 1):
@@ -85,7 +91,7 @@ def save_results():
     
     print(f"Saved JSON (Cookie-Editor): {json_file}")
     
-    # Also print summary
+    # Print summary
     print(f"\n{'=' * 60}")
     print(f"LIVE: {count} | 4K: {fourk_count}")
     
@@ -265,6 +271,23 @@ def check_netflix_account(account_data):
     except Exception as e:
         return False, account_data.get('billing_date', ''), account_data.get('plan', '')
 
+def save_account_to_folder(account, is_live, date, plan):
+    """Simpan satu akun ke folder result (jika live) atau invalid (jika mati)."""
+    folder = RESULT_DIR if is_live else INVALID_DIR
+    filename = os.path.join(folder, "result.txt" if is_live else "invalid.txt")
+    
+    with open(filename, 'a', encoding='utf-8') as f:
+        f.write(f"Email: {account['email']}\n")
+        f.write(f"Password: {account['password']}\n")
+        if is_live:
+            f.write(f"Plan: {plan} | Billing: {date}\n")
+        else:
+            f.write(f"Status: DEAD | Plan detected: {plan}\n")
+        f.write(f"Payment: {account['payment_method']} | Streams: {account['streams']}\n")
+        f.write(f"NetflixId: {account['cookies'].get('NetflixId', '')}\n")
+        f.write(f"SecureNetflixId: {account['cookies'].get('SecureNetflixId', '')}\n")
+        f.write("-" * 60 + "\n")
+
 def main():
     global live_accounts, count, fourk_count
     
@@ -298,9 +321,6 @@ def main():
             print(f"First line preview: {repr(lines[0][:300])}")
         return
     
-    a = accounts[0]
-
-    
     print("[INFO] Press CTRL+C at any time to save progress and exit.\n")
     
     for i, acc in enumerate(accounts, 1):
@@ -315,8 +335,12 @@ def main():
             else:
                 print(f" {res} | {date} #{count}")
             live_accounts.append((acc, date, res))
+            # Simpan ke folder result
+            save_account_to_folder(acc, True, date, res)
         else:
             print(f"❌ dead ({res})")
+            # Simpan ke folder invalid
+            save_account_to_folder(acc, False, date, res)
         
         time.sleep(2)
     
